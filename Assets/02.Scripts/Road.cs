@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Road : MonoBehaviour
 {
-    public Car CloneTarget = null;
+    public Transform CloneTarget = null;
     public Transform GenerationPos = null;
     public int GenerationPersent = 50;
 

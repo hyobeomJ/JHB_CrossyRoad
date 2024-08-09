@@ -47,10 +47,11 @@ public class ActorMove : MonoBehaviour
 
         this.transform.position += offsetpos;
 
-
+        m_RaftOffsetpos += offsetpos;
 
     }
-    void Update()
+
+    protected void InputUpdate()
     {
         if(Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -70,11 +71,43 @@ public class ActorMove : MonoBehaviour
         }
     }
 
+    Vector3 m_RaftOffsetpos = Vector3.zero;
+    protected void UpdateRaft()
+    {
+        if(RaftObject == null)
+        {
+            return;
+        }
+        Vector3 actorpos = RaftObject.transform.position + m_RaftOffsetpos;
+        this.transform.position = actorpos;
+    }
+    void Update()
+    {
+        InputUpdate();
+        UpdateRaft();  
+    }
+
+    [SerializeField]
+    protected Raft RaftObject = null;
+    protected Transform RaftCompareObj = null;
     protected void  OnTriggerEnter(Collider other) 
     {
         Debug.LogFormat("OnTriggerEnter : {0}, {1}"
             , other.name
             , other.tag);
+        if(other.tag.Contains("Raft"))
+        { 
+            RaftObject = other.transform.parent.GetComponent<Raft>();
+            if(RaftObject != null)
+            {
+                RaftCompareObj = RaftObject.transform;
+                m_RaftOffsetpos = this.transform.position - RaftObject.transform.position;
+            }
+            Debug.LogFormat("땟목탔다 : {0}, {1}"
+                , other.name
+                , m_RaftOffsetpos);
+            return;
+        }
         if(other.tag.Contains("Crash"))
         {
             Debug.LogFormat("부딪혔다! 작업 하자.");
@@ -83,6 +116,16 @@ public class ActorMove : MonoBehaviour
 
     protected void OnTriggerExit(Collider other)
     {
+        Debug.LogFormat("OnTriggerExit : {0}, {1}"
+            , other.name
+            , other.tag);
+        if(other.tag.Contains("Raft")
+            && RaftCompareObj == other.transform.parent)
+        {
+            RaftCompareObj = null;
+            RaftObject = null;
+            m_RaftOffsetpos = Vector3.zero;
+        }
 
     }
 
